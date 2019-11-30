@@ -1,3 +1,15 @@
+---
+title: "Additional analyses"
+author: "Joe Marlo"
+date: "11/30/2019"
+output: pdf_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
 library(ggplot2)
 library(tidyverse)
 library(lubridate)
@@ -8,12 +20,46 @@ tDataEx2 <- readRDS('Data/data_ex2_20170101-20170110.rds')
 tDataEx3 <- readRDS('Data/data_ex3_20170704-20170710.rds')
 tDataEx4 <- readRDS('Data/data_ex4_20170711-20170713.rds')
 
+```
 
-# Additional analyses -----------------------------------------------------
+## Additional analyses of the same data
+
+
+# Comparative analysis for control group, harmful group, and helpful group. (balance check)
+
+```{r}
+
+```
+
+
+# What is the percentage that a box has shown up with/without a helpline under three categories(control, helpful, harmful)?  In data (ex_3) 
+
+```{r}
+tDataEx3 %>%
+  group_by(eGroup, bResultsReached) %>%
+  summarize(Percent_shown = sum(bHelplineShown) / n()) %>%
+  ggplot(aes(x = bResultsReached, y = Percent_shown)) +
+  geom_col() +
+  facet_wrap(~eGroup) +
+  labs(title = "Percent suicide prevention box is shown per search group",
+       x = "Box was shown",
+       y = "Percent of time helpline was shown")
+
+tDataEx3 %>%
+  group_by(eCountry, eGroup, bResultsReached) %>%
+  summarize(Percent_shown = sum(bHelplineShown) / n()) %>%
+  ggplot(aes(x = bResultsReached, y = Percent_shown)) +
+  geom_col() +
+  facet_grid(eCountry~eGroup) +
+  labs(title = "Percent suicide prevention box is shown per search group and country",
+       x = "Box was shown",
+       y = "Percent of time helpline was shown")
+
+```
 
 
 
-# Original script ---------------------------------------------------------
+```{r original script, eval=FALSE, include=FALSE}
 
 # function to bootstrap-calc 95% CI and return as data frame (ready for dplyr)
 fCalcBootstrapCI <- function(.tData) {
@@ -141,3 +187,5 @@ tDataEx4 %>%
     theme(legend.position = 'bottom') +
     scale_colour_brewer(palette='Paired')
 ggsave('ex4_percentage-over-time_languagewise.png', device='png', width=10)
+```
+

@@ -43,7 +43,14 @@ tDataEx3 %>%
   facet_wrap(~eGroup) +
   labs(title = "Percent suicide prevention box is shown per search group",
        x = "Box was shown",
-       y = "Percent of time helpline was shown")
+       y = "Percent of time helpline was shown") +
+  theme_minimal()
+
+# ggsave(filename = "Plots/Rate_per_group.svg",
+#        plot = last_plot(),
+#        device = "svg",
+#        width = 7,
+#        height = 5)
 
 tDataEx3 %>%
   group_by(eCountry, eGroup, bResultsReached) %>%
@@ -54,6 +61,8 @@ tDataEx3 %>%
   labs(title = "Percent suicide prevention box is shown per search group and country",
        x = "Box was shown",
        y = "Percent of time helpline was shown")
+
+
 
 ```
 

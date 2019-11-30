@@ -1,2 +1,2 @@
-# DS-final-project
-Reproduction of study on Google's suicide prevention
+# Final project for NYU Data Sciene
+## Reproduction of study on Google's suicide prevention

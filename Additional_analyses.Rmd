@@ -30,28 +30,31 @@ tDataEx4 <- readRDS('Data/data_ex4_20170711-20170713.rds')
 ```{r}
 # rows by country
 tDataEx3 %>%
-  group_by(eCountry) %>%
+  group_by(eGroup, eCountry) %>%
   summarize(n = n()) %>%
   ggplot(aes(x = reorder(eCountry, n), y = n)) +
   geom_col() +
+  facet_wrap(~eGroup) +
   labs(x = "Country",
        y = "Number of queries")
 
 # rows by language
 tDataEx3 %>%
-  group_by(eLanguage) %>%
+  group_by(eGroup, eLanguage) %>%
   summarize(n = n()) %>%
     ggplot(aes(x = reorder(eLanguage, n), y = n)) +
   geom_col() +
+  facet_wrap(~eGroup) +
   labs(x = "Language",
        y = "Number of queries")
 
 # rows by query
 tDataEx3 %>%
-  group_by(eQ) %>%
+  group_by(eGroup, eQ) %>%
   summarize(n = n()) %>%
   ggplot(aes(x = reorder(eQ, n), y = n)) +
   geom_col() +
+  facet_wrap(~eGroup) +
   labs(x = "Query",
        y = "Number of queries")
   

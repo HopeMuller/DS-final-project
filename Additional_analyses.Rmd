@@ -68,6 +68,7 @@ tDataEx3 %>%
 This is a correlation matrix for Study 2 variables. You can see there is a high coorelation between the SPR box popping up and the countries of the United Kingdom, the USA, Ireland, and Australia.   
 
 ```{r}
+library(fastDummies)
 study2dummyRef <- dummy_cols(tDataEx3, select_columns = c("bHelplineShown", "eLanguage", "eCountry", "eGroup"), remove_first_dummy = TRUE)
 ggcorr(study2dummyRef, hjust = 0.75, size = 1.5)
 ```

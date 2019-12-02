@@ -28,7 +28,33 @@ tDataEx4 <- readRDS('Data/data_ex4_20170711-20170713.rds')
 # Comparative analysis for control group, harmful group, and helpful group. (balance check)
 
 ```{r}
+# rows by country
+tDataEx3 %>%
+  group_by(eCountry) %>%
+  summarize(n = n()) %>%
+  ggplot(aes(x = reorder(eCountry, n), y = n)) +
+  geom_col() +
+  labs(x = "Country",
+       y = "Number of queries")
 
+# rows by language
+tDataEx3 %>%
+  group_by(eLanguage) %>%
+  summarize(n = n()) %>%
+    ggplot(aes(x = reorder(eLanguage, n), y = n)) +
+  geom_col() +
+  labs(x = "Language",
+       y = "Number of queries")
+
+# rows by query
+tDataEx3 %>%
+  group_by(eQ) %>%
+  summarize(n = n()) %>%
+  ggplot(aes(x = reorder(eQ, n), y = n)) +
+  geom_col() +
+  labs(x = "Query",
+       y = "Number of queries")
+  
 ```
 
 
@@ -45,6 +71,9 @@ tDataEx3 %>%
        x = "Box was shown",
        y = "Percent of time helpline was shown") +
   theme_minimal()
+
+# which rows don't have the box but do have the helpline
+View(tDataEx3[!(tDataEx3$bResultsReached) & tDataEx3$bHelplineShown,])
 
 # ggsave(filename = "Plots/Rate_per_group.svg",
 #        plot = last_plot(),

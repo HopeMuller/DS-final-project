@@ -95,9 +95,15 @@ tDataEx3 %>%
        y = "Percent of time helpline was shown")
 ```
 
+## What is the correlation between the variables in Study 2?
 
+This is a correlation matrix for the Study 2 variables. First, I dummy coded whether the SPR box was shown, the language, the country, and the type of phrase that was searched for. 
 
-This is a correlation matrix for Study 2 variables. You can see there is a high coorelation between the SPR box popping up and the countries of the United Kingdom, the USA, Ireland, and Australia.   
+You can see there is a high coorelation between the countries and their common language. Notice the red boxes. These are not relevant for analysis.
+
+Next, you will notice there is a row with several pink boxes. It means that there is a high correlation between the SPR box popping up in the countries of the United Kingdom, the USA, Ireland, and Australia. There is not a significant correlation with the other countries.
+
+There is also a high correlation between the SPR box popping up with the harmful phrase searches.
 
 ```{r}
 library(fastDummies)

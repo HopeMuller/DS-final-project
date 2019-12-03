@@ -97,13 +97,13 @@ tDataEx3 %>%
 
 ## What is the correlation between the variables in Study 2?
 
-This is a correlation matrix for the Study 2 variables. First, I dummy coded whether the SPR box was shown, the language, the country, and the type of phrase that was searched for. 
+Below is a correlation matrix image for the variables in Study 2. First, I dummy coded whether the SPR box popped up during the query, the language used, the country the IP address was in, and the type of phrase that was searched for (harmful, helpful, and control). 
 
 You can see there is a high coorelation between the countries and their common language. Notice the red boxes. These are not relevant for analysis.
 
-Next, you will notice there is a row with several pink boxes. It means that there is a high correlation between the SPR box popping up in the countries of the United Kingdom, the USA, Ireland, and Australia. There is not a significant correlation with the other countries.
+Next, you will notice there is a row with several pink boxes. That row represents when the SPR box to pop up. It means that there is a high correlation between the SPR box popping up in the countries of the United Kingdom, the USA, Ireland, and Australia. There is not a significant correlation with the other countries. We notice the pattern that those are all countries where the primary language is English. 
 
-There is also a high correlation between the SPR box popping up with the harmful phrase searches.
+There is also a high correlation between the SPR box popping up with the harmful phrase searches, rather than control or helpful phrases. Notice the pink box on the bottom right. 
 
 ```{r}
 library(fastDummies)
@@ -112,6 +112,29 @@ study2dummyRef <- dummy_cols(tDataEx3, select_columns = c("bHelplineShown", "eLa
 ggcorr(study2dummyRef, hjust = 0.75, size = 1.5)
 ```
 
+## What is the difference between SPR pop ups when a person makes a harmful Google search in various countries and their main language?
+
+Below are two bar plots of the harmful Google queries in Study 2.
+
+As you can see in the plots below, harmful Google queries were routed to the SPR box much more often when they were searched for in English, except in Canada. Harmful Google queries in other languages were much less likely to be routed to the SPR box. 
+
+```{r}
+library(dplyr)
+library(ggplot2)
+
+study2harmful <- data.frame(tDataEx3[which(tDataEx3$eGroup=="harmful"),])
+agg <- count(study2harmful, eLanguage, eCountry, bHelplineShown)
+ecols <- c(English="darkgoldenrod1", Portuguese="dodgerblue4", Mandarin="midnightblue", Hindi="deepskyblue3", German="lightskyblue1", Japanese="green4",Korean="yellowgreen")
+agg_ord <- mutate(agg,
+                  bHelplineShown = reorder(bHelplineShown, -n, sum))
+p1 <- ggplot(agg_ord) +
+      geom_col(aes(x = eCountry, y = n, fill = eLanguage), position = "dodge") +
+      scale_fill_manual(values = ecols)
+p1 + facet_wrap(~ bHelplineShown) +
+    labs(title = "Number of Harmful Google Queries Routed to SPR Box",
+       x = "Country Name & Queary Search Language",
+       y = "Number of Harmful Queries") + theme(plot.title = element_text(hjust = 0.5))
+```
 
 
 ```{r original script, eval=FALSE, include=FALSE}

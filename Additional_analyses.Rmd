@@ -131,9 +131,10 @@ p1 <- ggplot(agg_ord) +
       geom_col(aes(x = eCountry, y = n, fill = eLanguage), position = "dodge") +
       scale_fill_manual(values = ecols)
 p1 + facet_wrap(~ bHelplineShown) +
-    labs(title = "Number of Harmful Google Queries Routed to SPR Box",
+    labs(title = "Number of Harmful Google Queries Routed to Suicide Prevention Box",
        x = "Country Name & Queary Search Language",
-       y = "Number of Harmful Queries") + theme(plot.title = element_text(hjust = 0.5))
+       y = "Number of Harmful Queries") + 
+       theme(plot.title = element_text(hjust = 0.5))
 ```
 
 

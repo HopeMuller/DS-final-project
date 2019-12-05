@@ -95,15 +95,20 @@ tDataEx3 %>%
        y = "Percent of time helpline was shown")
 ```
 
-## What is the correlation between the variables in Study 2?
+### Correlation Plot
+## What are the correlations between the variables in Study 2?
 
-Below is a correlation matrix image for the variables in Study 2. First, I dummy coded whether the SPR box popped up during the query, the language used, the country the IP address was in, and the type of phrase that was searched for (harmful, helpful, and control). 
+Below is a correlation matrix image for the variables in Study 2. 
+
+# First, I dummy coded whether the SPR box popped up during the query, the language used, the country the IP address was in, and the type of phrase in the search (harmful, helpful, and control). 
 
 You can see there is a high coorelation between the countries and their common language. Notice the red boxes. These are not relevant for analysis.
 
-Next, you will notice there is a row with several pink boxes. That row represents when the SPR box to pop up. It means that there is a high correlation between the SPR box popping up in the countries of the United Kingdom, the USA, Ireland, and Australia. There is not a significant correlation with the other countries. We notice the pattern that those are all countries where the primary language is English. 
+Next, you will notice there is a row near the bottom with several pink boxes. That row represents when the SPR box popped up. The pattern communicates that there is a high correlation between the SPR box popping up in the countries of the United Kingdom, the USA, Ireland, and Australia. There is not a significant correlation with the other countries. We notice the pattern that those are all countries where the primary language is English.
 
-There is also a high correlation between the SPR box popping up with the harmful phrase searches, rather than control or helpful phrases. Notice the pink box on the bottom right. 
+There is also a high correlation between the SPR box popping up with the harmful phrase searches. Notice the pink box on the bottom right. 
+
+The correlation is significant for each of those combinations. . 
 
 ```{r}
 library(fastDummies)
@@ -112,11 +117,12 @@ study2dummyRef <- dummy_cols(tDataEx3, select_columns = c("bHelplineShown", "eLa
 ggcorr(study2dummyRef, hjust = 0.75, size = 1.5)
 ```
 
-## What is the difference between SPR pop ups when a person makes a harmful Google search in various countries and their main language?
+### Harmful SPR Plot by Country and Language
+## What is the difference between SPR pop-ups when a person makes a harmful Google search in various countries and their primary language?
 
-Below are two bar plots of the harmful Google queries in Study 2.
+Below are two bar plots of the harmful Google queries in Study 2. The harmful Google queries are divided by country.
 
-As you can see in the plots below, harmful Google queries were routed to the SPR box much more often when they were searched for in English, except in Canada. Harmful Google queries in other languages were much less likely to be routed to the SPR box. 
+As you can see, harmful Google queries were routed to the SPR box much more often when they were searched for in English, except in Canada. Harmful Google queries in other countries, whose primary languages are not English, were much less likely to be routed to the SPR box. 
 
 ```{r}
 library(dplyr)

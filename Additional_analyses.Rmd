@@ -144,6 +144,19 @@ p1 + facet_wrap(~ bHelplineShown) +
 ```
 
 
+### Linear Model Coefficient
+##
+
+This still needs to be cleaned up a lot!
+
+```{r}
+# This seems like the best model to fit the data. I removed all the variables from the plot that had high p-values
+SPRlm <- lm(bHelplineShown ~ eCountry*eGroup, data = tDataEx3)
+plot_model(SPRlm_coungr_int, sort.est=TRUE, rm.terms = c("eCountry [Ireland]", "eCountry [UK]", "eGroup [helpful]","eCountry [India]", "eGroup [harmful]", "eCountry [Japan]", "eCountry [Germany]", "eCountry [South Korea]", "eCountry[Australia]", "eCountry [Canada]", "eCountry [Brazil]", "eCountry [USA]", "eCountry [Australia]", "eCountryCanada:eGrouphelpful", "eCountryCanada:eGroupharmful", "eCountryBrazil:eGrouphelpful", "eCountryJapan:eGrouphelpful", "eCountryIndia:eGrouphelpful", "eCountrySouth Korea:eGrouphelpful"), show.values = TRUE, value.offset = .35, value.size=3, title = "Forest Plot of Suicide Prevention Box Shown", axis.title = "lm regression coefficients", axis.labels = c("Germany * helpful", "India * harmful", "Germany * harmful", "Brazil * harmful", "South Korea * harmful", "Australia * helpful", "Ireland * helpful", "UK * helpful", "Japan * harmful", "USA * helpful", "Ireland * harmful", "USA * harmful", "UK * harmful", "Australia * harmful"))
+
+```
+
+
 ```{r original script, eval=FALSE, include=FALSE}
 
 # function to bootstrap-calc 95% CI and return as data frame (ready for dplyr)

@@ -150,10 +150,56 @@ p1 + facet_wrap(~ bHelplineShown) +
 This still needs to be cleaned up a lot!
 
 ```{r}
+library(sjPlot)
 # This seems like the best model to fit the data. I removed all the variables from the plot that had high p-values
 SPRlm <- lm(bHelplineShown ~ eCountry*eGroup, data = tDataEx3)
-plot_model(SPRlm_coungr_int, sort.est=TRUE, rm.terms = c("eCountry [Ireland]", "eCountry [UK]", "eGroup [helpful]","eCountry [India]", "eGroup [harmful]", "eCountry [Japan]", "eCountry [Germany]", "eCountry [South Korea]", "eCountry[Australia]", "eCountry [Canada]", "eCountry [Brazil]", "eCountry [USA]", "eCountry [Australia]", "eCountryCanada:eGrouphelpful", "eCountryCanada:eGroupharmful", "eCountryBrazil:eGrouphelpful", "eCountryJapan:eGrouphelpful", "eCountryIndia:eGrouphelpful", "eCountrySouth Korea:eGrouphelpful"), show.values = TRUE, value.offset = .35, value.size=3, title = "Forest Plot of Suicide Prevention Box Shown", axis.title = "lm regression coefficients", axis.labels = c("Germany * helpful", "India * harmful", "Germany * harmful", "Brazil * harmful", "South Korea * harmful", "Australia * helpful", "Ireland * helpful", "UK * helpful", "Japan * harmful", "USA * helpful", "Ireland * harmful", "USA * harmful", "UK * harmful", "Australia * harmful"))
+plot_model(SPRlm, sort.est=TRUE, rm.terms = c("eCountry [Ireland]", "eCountry [UK]", "eGroup [helpful]","eCountry [India]", "eGroup [harmful]", "eCountry [Japan]", "eCountry [Germany]", "eCountry [South Korea]", "eCountry[Australia]", "eCountry [Canada]", "eCountry [Brazil]", "eCountry [USA]", "eCountry [Australia]", "eCountryCanada:eGrouphelpful", "eCountryCanada:eGroupharmful", "eCountryBrazil:eGrouphelpful", "eCountryJapan:eGrouphelpful", "eCountryIndia:eGrouphelpful", "eCountrySouth Korea:eGrouphelpful"), show.values = TRUE, value.offset = .35, value.size=3, title = "Forest Plot of Suicide Prevention Box Shown", axis.title = "lm regression coefficients", axis.labels = c("Germany * helpful", "India * harmful", "Germany * harmful", "Brazil * harmful", "South Korea * harmful", "Australia * helpful", "Ireland * helpful", "UK * helpful", "Japan * harmful", "USA * helpful", "Ireland * harmful", "USA * harmful", "UK * harmful", "Australia * harmful"))
 
+```
+
+
+SPR display rate segmented per server and country
+```{r}
+
+tDataEx3 %>%
+  group_by(eServer, eCountry) %>%
+  summarize(Percent_shown = sum(bHelplineShown) / n()) %>%
+  ggplot(aes(x = eServer, y = Percent_shown)) +
+  geom_col() +
+  facet_wrap(~reorder(eCountry, Percent_shown)) +
+  labs(title = "Percent of time SPR is shown segmented by country and server",
+       x = "Server",
+       y = "Percent of time SPR is shown")
+
+```
+
+SPR display rate by time and day of week
+```{r}
+tDataEx3 %>%
+  # mutate(time = format(as.POSIXct(strptime(dCreate,"%Y-%d-%m %H:%M:%S",tz="")) ,format = "%H:%M")) %>%
+  mutate(Hour = hour(dCreate)) %>%
+  group_by(Hour, eCountry) %>%
+  summarize(Percent_shown = sum(bHelplineShown) / n()) %>%
+  ggplot(aes(x = Hour, y = Percent_shown, group = eCountry)) +
+  geom_line() +
+  geom_point() +
+  scale_y_continuous(limits = c(0, 1)) +
+  labs(title = "Percent of time SPR is show by hour of the day",
+       x = "Hour of the day",
+       y = "Percent of time SPR is shown")
+
+tDataEx3 %>%
+  # mutate(time = format(as.POSIXct(strptime(dCreate,"%Y-%d-%m %H:%M:%S",tz="")) ,format = "%H:%M")) %>%
+  mutate(WeekDay = wday(dCreate)) %>%
+  group_by(WeekDay, eCountry) %>%
+  summarize(Percent_shown = sum(bHelplineShown) / n()) %>%
+  ggplot(aes(x = WeekDay, y = Percent_shown, group = eCountry)) +
+  geom_line() +
+  geom_point() +
+  scale_y_continuous(limits = c(0, 1)) +
+  labs(title = "Percent of time SPR is show by day of the week",
+       x = "Day of the week",
+       y = "Percent of time SPR is shown")
 ```
 
 

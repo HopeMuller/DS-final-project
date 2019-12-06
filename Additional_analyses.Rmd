@@ -333,3 +333,26 @@ tDataEx4 %>%
 ggsave('ex4_percentage-over-time_languagewise.png', device='png', width=10)
 ```
 
+
+
+##Contrast model：use English as reference group
+```{r}
+#install.packages("lsmeans")
+library(lsmeans)
+data <- tDataEx4
+res1 <- lm(bHelplineShown~factor(eLanguage), data=data)
+language.est = lsmeans(res1, "eLanguage")
+#use English as reference group
+Contrasts.English.ref = list(Mandarin.vs.English = c(1, -1, 0, 0), Hindi.vs.English = c(1, 0, -1,0), Telugu.vs.English = c(1, 0, 0, -1))
+Test1 = contrast(language.est, Contrasts.English.ref)
+test(Test1)
+```
+
+
+##Contrast model：compare each group to overall mean
+```{r}
+#compare each group to overall mean
+Contrasts.group.averageref = list(English.vs.average = c(3/4, -1/4,-1/4,-1/4), Mandarin.vs.average = c(-1/4, 3/4,-1/4,-1/4), Hindi.vs.average = c(-1/4, -1/4,3/4,-1/4), Telugu.vs.average = c(-1/4, -1/4,-1/4, 3/4))
+Test2 = contrast(language.est, Contrasts.group.averageref)
+test(Test2)
+```

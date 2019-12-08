@@ -147,8 +147,8 @@ p1 + facet_wrap(~ bHelplineShown) +
 ```
 
 
-### Linear Model Coefficient
-##
+### Forest Plot for the Linear Model Coefficients
+## How do the linear coefficients compare accross a linear model of the data with an interaction around country and phrase type? 
 
 An interactive model that represents the data is: bHelplineShown = eCountry*eGroup. The outcome variable is the SPR box pop up and the independent variables are the country and the type of phrae that was used. 
 
@@ -167,7 +167,6 @@ plot_model(SPRlm, sort.est=TRUE, wrap.labels = 50, rm.terms = c("eCountry [Irela
        theme(plot.title = element_text(hjust = 0.5))
 
 ```
-
 
 SPR display rate segmented per server and country
 ```{r}

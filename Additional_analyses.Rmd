@@ -335,7 +335,7 @@ ggsave('ex4_percentage-over-time_languagewise.png', device='png', width=10)
 
 
 
-##Contrast model：use English as reference group
+##Contrast model：use English as reference group (extra)
 ```{r}
 #install.packages("lsmeans")
 library(lsmeans)

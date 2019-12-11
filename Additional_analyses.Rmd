@@ -98,23 +98,26 @@ tDataEx3 %>%
 ### Correlation Plot
 ## What are the correlations between the variables in Study 2?
 
-Below is a correlation matrix image for the variables in Study 2. 
+Below is a correlation matrix image for the main variables in study two. There were no reference groups used for this display.
 
-# First, I dummy coded whether the SPR box popped up during the query, the language used, the country the IP address was in, and the type of phrase in the search (harmful, helpful, and control). 
+# First, I dummy coded the following variables: whether the SPR box popped up during the query, the language used, the country, and the type of phrase in the search (harmful, helpful, and control). I decided against using reference groups to show the .33 English to SPR box pop up correlation.
 
-You can see there is a high coorelation between the countries and their common language. Notice the red boxes. These are not relevant for analysis.
+You can see there is a high correlation between the countries and their common language. Notice the dark green boxes with correlation 1. There are also some high correlations due to multicollinearity. They are in dark blue from .5 to 1. These are not relevant to this analysis.
 
-Next, you will notice there is a row near the bottom with several pink boxes. That row represents when the SPR box popped up. The pattern communicates that there is a high correlation between the SPR box popping up in the countries of the United Kingdom, the USA, Ireland, and Australia. There is not a significant correlation with the other countries. We notice the pattern that those are all countries where the primary language is English.
+There are three correlations that we want to discuss. They are in the row near the bottom titled bHelplineShown_TRUE. That row represents the SPR box pop up variable. 
 
-There is also a high correlation between the SPR box popping up with the harmful phrase searches. Notice the pink box on the bottom right. 
+The green correlation box on the left shows the correlation between English searches, and the SPR box pop up is .33. On the right side of the  bHelplineShown_TRUE row, the correlation between harmful search phrases and the SPR box pop up is also significant. It has a positive value of .42. On the other hand, the control search phrases are negatively correlated to the SPR box pop up, with a value of -.34. These statistics are consistent with the research findings in study two. 
 
-The correlation is significant for each of those combinations. . 
+Another observation of the correlation matrix is that the search phrase type does not correlate with any language or country, as they were evenly distributed across by the study design.
 
 ```{r}
 library(fastDummies)
 library(GGally)
-study2dummyRef <- dummy_cols(tDataEx3, select_columns = c("bHelplineShown", "eLanguage", "eCountry", "eGroup"), remove_first_dummy = TRUE)
-ggcorr(study2dummyRef, hjust = 0.75, size = 1.5)
+study2dummyRef <- dummy_cols(tDataEx3, select_columns = c("bHelplineShown", "eLanguage", "eCountry", "eGroup"))
+ggcorr(study2dummyRef, hjust = 0.75, size = 1.5, label=T, label_round = 2,
+  label_size = 2, high = "forestgreen") + 
+  ggplot2::labs(title = "Study Two Correlation Matrix") +
+  theme(plot.title = element_text(hjust = 0.5))
 ```
 
 ### Harmful SPR Plot by Country and Language
@@ -144,37 +147,52 @@ p1 + facet_wrap(~ bHelplineShown) +
 ```
 
 
-### Linear Model Coefficient
-##
+### Forest Plot for the Linear Model Coefficients
+## How do the linear coefficients compare accross a linear model of the data with an interaction around country and phrase type? 
 
-This still needs to be cleaned up a lot!
+An interactive model that represents the data is: bHelplineShown = eCountry*eGroup. The outcome variable is the SPR box pop up and the independent variables are the country and the type of phrae that was used. 
+
+You can see below a forest plot of the coefficients for this model that listed a t-value greater than 0 and a p-value less than 1. 
+
+There are coefficients ranging from .78 to .8 for countries where English is the primary language and harmful phrases were searched. The other coefficients shown on the plot have values ranging from .08 to .38. 
+
+These trends are consistent with the research findings. The researchers found harmful phrase searches and English speaking countries had higher display rates of the SPR box pop up. They also found all searches in Canada, helpful searches in India, South Korea, Japan, and Brazil had a zero percent display rate of the SPR box pop up. This aligns with the interactions in this linear model showed a t-value of zero. 
 
 ```{r}
+#names(study2dummyRef)[names(study2dummyRef) == "eCountry_South Korea"] <- "eCountry_South_Korea"
+#acc.lm <- lm(bHelplineShown ~ eCountry_Germany*eGroup_helpful + eCountry_India*eGroup_harmful + eCountry_Germany*eGroup_harmful + eCountry_Brazil*eGroup_harmful + eCountry_South_Korea*eGroup_harmful + eCountry_Australia*eGroup_helpful + eCountry_Ireland*eGroup_helpful + eCountry_UK*eGroup_helpful + eCountry_Japan*eGroup_harmful + eCountry_USA*eGroup_helpful + eCountry_Ireland*eGroup_harmful + eCountry_USA*eGroup_harmful + eCountry_UK*eGroup_harmful + eCountry_Australia*eGroup_harmful, data = study2dummyRef)
+#summary(acc.lm)
+
 library(sjPlot)
 # This seems like the best model to fit the data. I removed all the variables from the plot that had high p-values
 SPRlm <- lm(bHelplineShown ~ eCountry*eGroup, data = tDataEx3)
-plot_model(SPRlm, sort.est=TRUE, rm.terms = c("eCountry [Ireland]", "eCountry [UK]", "eGroup [helpful]","eCountry [India]", "eGroup [harmful]", "eCountry [Japan]", "eCountry [Germany]", "eCountry [South Korea]", "eCountry[Australia]", "eCountry [Canada]", "eCountry [Brazil]", "eCountry [USA]", "eCountry [Australia]", "eCountryCanada:eGrouphelpful", "eCountryCanada:eGroupharmful", "eCountryBrazil:eGrouphelpful", "eCountryJapan:eGrouphelpful", "eCountryIndia:eGrouphelpful", "eCountrySouth Korea:eGrouphelpful"), show.values = TRUE, value.offset = .35, value.size=3, title = "Forest Plot of Suicide Prevention Box Shown", axis.title = "lm regression coefficients", axis.labels = c("Germany * helpful", "India * harmful", "Germany * harmful", "Brazil * harmful", "South Korea * harmful", "Australia * helpful", "Ireland * helpful", "UK * helpful", "Japan * harmful", "USA * helpful", "Ireland * harmful", "USA * harmful", "UK * harmful", "Australia * harmful"))
+# summary(SPRlm)
+plot_model(SPRlm, sort.est=TRUE, wrap.labels = 75, rm.terms = c("eCountry [Ireland]", "eCountry [UK]", "eGroup [helpful]","eCountry [India]", "eGroup [harmful]", "eCountry [Japan]", "eCountry [Germany]", "eCountry [South Korea]", "eCountry[Australia]", "eCountry [Canada]", "eCountry [Brazil]", "eCountry [USA]", "eCountry [Australia]", "eCountryCanada:eGrouphelpful", "eCountryCanada:eGroupharmful", "eCountryBrazil:eGrouphelpful", "eCountryJapan:eGrouphelpful", "eCountryIndia:eGrouphelpful", "eCountrySouth Korea:eGrouphelpful"), show.values = TRUE, value.offset = .35, value.size=3, title = "Forest Plot of Suicide Prevention Box Shown", axis.title = "lm Regression Coefficients (for all variables with outcomes)", axis.labels = c("Germany * helpful", "India * harmful", "Germany * harmful", "Brazil * harmful", "South Korea * harmful", "Australia * helpful", "Ireland * helpful", "UK * helpful", "Japan * harmful", "USA * helpful", "Ireland * harmful", "USA * harmful", "UK * harmful", "Australia * harmful"), colors = c("forestgreen")) + 
+       theme(plot.title = element_text(hjust = 0.5))
 
 ```
 
-
 SPR display rate segmented per server and country
 ```{r}
-
+library(dplyr)
+library(ggplot2)
 tDataEx3 %>%
   group_by(eServer, eCountry) %>%
   summarize(Percent_shown = sum(bHelplineShown) / n()) %>%
   ggplot(aes(x = eServer, y = Percent_shown)) +
   geom_col() +
   facet_wrap(~reorder(eCountry, Percent_shown)) +
-  labs(title = "Percent of time SPR is shown segmented by country and server",
+  labs(title = "Percent of Time SPR is Shown, Segmented by Country and Server",
        x = "Server",
-       y = "Percent of time SPR is shown")
+       y = "Percent of Time SPR is Shown") +
+  theme(plot.title = element_text(hjust = 0.5))
+
 
 ```
 
 SPR display rate by time and day of week
 ```{r}
+library(radiant.data)
 tDataEx3 %>%
   # mutate(time = format(as.POSIXct(strptime(dCreate,"%Y-%d-%m %H:%M:%S",tz="")) ,format = "%H:%M")) %>%
   mutate(Hour = hour(dCreate)) %>%
@@ -184,9 +202,10 @@ tDataEx3 %>%
   geom_line() +
   geom_point() +
   scale_y_continuous(limits = c(0, 1)) +
-  labs(title = "Percent of time SPR is show by hour of the day",
-       x = "Hour of the day",
-       y = "Percent of time SPR is shown")
+  labs(title = "Percent of Time SPR is Shown by Hour of the Day",
+       x = "Hour of the Day",
+       y = "Percent of time SPR is Shown")  +
+  theme(plot.title = element_text(hjust = 0.5))
 
 tDataEx3 %>%
   # mutate(time = format(as.POSIXct(strptime(dCreate,"%Y-%d-%m %H:%M:%S",tz="")) ,format = "%H:%M")) %>%
@@ -197,9 +216,11 @@ tDataEx3 %>%
   geom_line() +
   geom_point() +
   scale_y_continuous(limits = c(0, 1)) +
-  labs(title = "Percent of time SPR is show by day of the week",
-       x = "Day of the week",
-       y = "Percent of time SPR is shown")
+  labs(title = "Percent of Time SPR is Shown by Day of the Week",
+       x = "Day of the Week",
+       y = "Percent of Time SPR is Shown") +
+  theme(plot.title = element_text(hjust = 0.5))
+
 ```
 
 

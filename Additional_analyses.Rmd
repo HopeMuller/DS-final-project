@@ -159,11 +159,15 @@ There are coefficients ranging from .78 to .8 for countries where English is the
 These trends are consistent with the research findings. The researchers found harmful phrase searches and English speaking countries had higher display rates of the SPR box pop up. They also found all searches in Canada, helpful searches in India, South Korea, Japan, and Brazil had a zero percent display rate of the SPR box pop up. This aligns with the interactions in this linear model showed a t-value of zero. 
 
 ```{r}
+#names(study2dummyRef)[names(study2dummyRef) == "eCountry_South Korea"] <- "eCountry_South_Korea"
+#acc.lm <- lm(bHelplineShown ~ eCountry_Germany*eGroup_helpful + eCountry_India*eGroup_harmful + eCountry_Germany*eGroup_harmful + eCountry_Brazil*eGroup_harmful + eCountry_South_Korea*eGroup_harmful + eCountry_Australia*eGroup_helpful + eCountry_Ireland*eGroup_helpful + eCountry_UK*eGroup_helpful + eCountry_Japan*eGroup_harmful + eCountry_USA*eGroup_helpful + eCountry_Ireland*eGroup_harmful + eCountry_USA*eGroup_harmful + eCountry_UK*eGroup_harmful + eCountry_Australia*eGroup_harmful, data = study2dummyRef)
+#summary(acc.lm)
+
 library(sjPlot)
 # This seems like the best model to fit the data. I removed all the variables from the plot that had high p-values
 SPRlm <- lm(bHelplineShown ~ eCountry*eGroup, data = tDataEx3)
-summary(SPRlm)
-plot_model(SPRlm, sort.est=TRUE, wrap.labels = 50, rm.terms = c("eCountry [Ireland]", "eCountry [UK]", "eGroup [helpful]","eCountry [India]", "eGroup [harmful]", "eCountry [Japan]", "eCountry [Germany]", "eCountry [South Korea]", "eCountry[Australia]", "eCountry [Canada]", "eCountry [Brazil]", "eCountry [USA]", "eCountry [Australia]", "eCountryCanada:eGrouphelpful", "eCountryCanada:eGroupharmful", "eCountryBrazil:eGrouphelpful", "eCountryJapan:eGrouphelpful", "eCountryIndia:eGrouphelpful", "eCountrySouth Korea:eGrouphelpful"), show.values = TRUE, value.offset = .35, value.size=3, title = "Forest Plot of Suicide Prevention Box Shown", axis.title = "lm Regression Coefficients (only t > 0 are listed)", axis.labels = c("Germany * helpful", "India * harmful", "Germany * harmful", "Brazil * harmful", "South Korea * harmful", "Australia * helpful", "Ireland * helpful", "UK * helpful", "Japan * harmful", "USA * helpful", "Ireland * harmful", "USA * harmful", "UK * harmful", "Australia * harmful"), colors = c("forestgreen")) + 
+# summary(SPRlm)
+plot_model(SPRlm, sort.est=TRUE, wrap.labels = 75, rm.terms = c("eCountry [Ireland]", "eCountry [UK]", "eGroup [helpful]","eCountry [India]", "eGroup [harmful]", "eCountry [Japan]", "eCountry [Germany]", "eCountry [South Korea]", "eCountry[Australia]", "eCountry [Canada]", "eCountry [Brazil]", "eCountry [USA]", "eCountry [Australia]", "eCountryCanada:eGrouphelpful", "eCountryCanada:eGroupharmful", "eCountryBrazil:eGrouphelpful", "eCountryJapan:eGrouphelpful", "eCountryIndia:eGrouphelpful", "eCountrySouth Korea:eGrouphelpful"), show.values = TRUE, value.offset = .35, value.size=3, title = "Forest Plot of Suicide Prevention Box Shown", axis.title = "lm Regression Coefficients (for all variables with outcomes)", axis.labels = c("Germany * helpful", "India * harmful", "Germany * harmful", "Brazil * harmful", "South Korea * harmful", "Australia * helpful", "Ireland * helpful", "UK * helpful", "Japan * harmful", "USA * helpful", "Ireland * harmful", "USA * harmful", "UK * harmful", "Australia * harmful"), colors = c("forestgreen")) + 
        theme(plot.title = element_text(hjust = 0.5))
 
 ```

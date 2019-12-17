@@ -37,7 +37,7 @@ tDataEx4 <- readRDS('Data/data_ex4_20170711-20170713.rds')
 
 # Authors' original code
 
-All of the tables and plots associated with the article can be easily reproduced from the researchers’ code and data below. They used concise R code. It is likely that they did exploratory analysis on their data before settling on the plots that they chose since their plots are detailed. They also did not include any plots for study one and they likely did make some plots for themselves during their research process. The two main plots that they chose are comprehensive summaries of their findings for study two and study three. These plots can be reproduced by running the code below
+All of the analyses and plots associated with the original paper can be easily reproduced from the researchers’ code and data below. They used concise R code. It is likely that they did exploratory analysis on their data before settling on the plots that they chose since their plots are detailed. They also did not include any plots for study one and they likely did make some plots for themselves during their research process. The two main plots that they chose are comprehensive summaries of their findings for study two and study three. These plots can be reproduced by running the code below.
 
 ```{r original script}
 
@@ -248,7 +248,7 @@ tDataEx3 %>%
 
 
 ### Contrast models：use English as reference group (extra)
-How does the SPR box differ by langauge? English as there reference group
+How does the SPR box differ by langauge? Contrast model with English as the reference group.
 
 ```{r}
 res1 <- lm(bHelplineShown~factor(eLanguage), data=tDataEx4)
@@ -261,7 +261,7 @@ test(Test1)
 
 
 ### Contrast model：compare each group to overall mean
-How does the SPR box differ by langauge? Compared to overall mean
+How does the SPR box differ by langauge? Contrast model with overall mean as the reference group.
 
 ```{r}
 #compare each group to overall mean

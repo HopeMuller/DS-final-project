@@ -16,6 +16,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 # Load the relevant libraries and datasets
+Please install the packages using `install.packages()` if you do not have them currently installed.
 ```{r message=FALSE, warning=FALSE}
 library(tidyverse)
 library(lubridate)
@@ -36,9 +37,9 @@ tDataEx4 <- readRDS('Data/data_ex4_20170711-20170713.rds')
 
 # Authors' original code
 
-All of the tables and plots associated with the article can be easily reproduced from the researchers’ code and data below. They used concise R code. It is likely that they did exploratory analysis on their data before settling on the plots that they chose since their plots are detailed. They also did not include any plots for study one and they likely did make some plots for themselves during their research process. The two main plots that they chose are comprehensive summaries of their findings for study two and study three.
+All of the tables and plots associated with the article can be easily reproduced from the researchers’ code and data below. They used concise R code. It is likely that they did exploratory analysis on their data before settling on the plots that they chose since their plots are detailed. They also did not include any plots for study one and they likely did make some plots for themselves during their research process. The two main plots that they chose are comprehensive summaries of their findings for study two and study three. These plots can be reproduced by running the code below
 
-```{r original script, eval=FALSE}
+```{r original script}
 
 # function to bootstrap-calc 95% CI and return as data frame (ready for dplyr)
 fCalcBootstrapCI <- function(.tData) {
@@ -89,11 +90,11 @@ tDataEx3 %>%
 fCalcBootstrapCI(tDataEx3 %>% filter(eGroup == 'harmful'))
 fCalcBootstrapCI(tDataEx3 %>% filter(eGroup == 'helpful'))
 
-tDataEx3 %>%
-  group_by(eCountry, eGroup) %>%
-  do(fCalcBootstrapCI(.)) %>%
-  arrange(eGroup, desc(relative)) %>%
-  View
+# tDataEx3 %>%
+#   group_by(eCountry, eGroup) %>%
+#   do(fCalcBootstrapCI(.)) %>%
+#   arrange(eGroup, desc(relative)) %>%
+#   View
 
 tDataEx3 %>%
   filter(eGroup != 'control') %>%
@@ -133,11 +134,11 @@ tDataEx3 %>%
 # ggsave('ex3_percentage-per-country-and-group.png', device='png', width=10)
   
 # study 3: comparison within multi-lingual country (india, china)
-tDataEx4 %>% nrow
-tDataEx4 %>%
-  group_by(eCountry, eLanguage, eGroup) %>%
-  do(fCalcBootstrapCI(.)) %>%
-  View
+# tDataEx4 %>% nrow
+# tDataEx4 %>%
+#   group_by(eCountry, eLanguage, eGroup) %>%
+#   do(fCalcBootstrapCI(.)) %>%
+#   View
 
 tDataEx4 %>%
   mutate(
@@ -168,13 +169,13 @@ tDataEx4 %>%
 
 
 # Our additional analyses of the same data
-See the paper for descriptions of the output of this code.
-
+See the paper for descriptions of the output of this code. Each code section below answers the question that is proposed just prior to the respective section.
 
 ### Correlation Plot
 What are the correlations between the variables in Study 2?
 
 ```{r message=FALSE, warning=FALSE}
+# correlation plot
 study2dummyRef <- dummy_cols(tDataEx3, select_columns = c("bHelplineShown", "eLanguage", "eCountry", "eGroup"))
 ggcorr(study2dummyRef, hjust = 0.75, size = 1.5, label=T, label_round = 2,
   label_size = 2, high = "forestgreen") + 
@@ -187,7 +188,7 @@ ggcorr(study2dummyRef, hjust = 0.75, size = 1.5, label=T, label_round = 2,
 How do the linear coefficients compare accross a linear model of the data with an interaction around country and phrase type? 
 
 ```{r message=FALSE, warning=FALSE}
-# This is an effective linear model
+# linear model of showing the helpline as aa function of country and twhich group (harmful, helpful, control)
 SPRlm <- lm(bHelplineShown ~ eCountry*eGroup, data = tDataEx3)
 
 # plot of linear model coefficients
@@ -196,6 +197,7 @@ plot_model(SPRlm, sort.est=TRUE, wrap.labels = 75, rm.terms = c("eCountry [Irela
 ```
 
 ### SPR display rate by time and day of week
+Does the display rate change by the time of day and the day of the week?
 
 ```{r}
 # SPR by time and country
@@ -245,11 +247,11 @@ tDataEx3 %>%
 ```
 
 
-### Contrast model：use English as reference group (extra)
+### Contrast models：use English as reference group (extra)
+How does the SPR box differ by langauge? English as there reference group
 
 ```{r}
-data <- tDataEx4
-res1 <- lm(bHelplineShown~factor(eLanguage), data=data)
+res1 <- lm(bHelplineShown~factor(eLanguage), data=tDataEx4)
 language.est = lsmeans(res1, "eLanguage")
 #use English as reference group
 Contrasts.English.ref = list(Mandarin.vs.English = c(1, -1, 0, 0), Hindi.vs.English = c(1, 0, -1,0), Telugu.vs.English = c(1, 0, 0, -1))
@@ -259,6 +261,7 @@ test(Test1)
 
 
 ### Contrast model：compare each group to overall mean
+How does the SPR box differ by langauge? Compared to overall mean
 
 ```{r}
 #compare each group to overall mean

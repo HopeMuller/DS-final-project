@@ -2,229 +2,41 @@
 title: "Additional analyses"
 author: "Joe Marlo"
 date: "11/30/2019"
-output: pdf_document
-editor_options: 
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+editor_options:
   chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+```
 
-library(ggplot2)
+```{r message=FALSE, warning=FALSE}
 library(tidyverse)
 library(lubridate)
 library(magrittr)
 library(boot)
+library(fastDummies)
+library(GGally)
+library(sjPlot)
+library(radiant.data)
+library(lsmeans)
 
+# read in the data
 tDataEx2 <- readRDS('Data/data_ex2_20170101-20170110.rds')
 tDataEx3 <- readRDS('Data/data_ex3_20170704-20170710.rds')
 tDataEx4 <- readRDS('Data/data_ex4_20170711-20170713.rds')
-
-```
-
-## Additional analyses of the same data
-
-
-# Comparative analysis for control group, harmful group, and helpful group. (balance check)
-
-```{r}
-# rows by country
-tDataEx3 %>%
-  group_by(eGroup, eCountry) %>%
-  summarize(n = n()) %>%
-  ggplot(aes(x = reorder(eCountry, n), y = n)) +
-  geom_col() +
-  facet_wrap(~eGroup) +
-  labs(x = "Country",
-       y = "Number of queries")
-
-# rows by language
-tDataEx3 %>%
-  group_by(eGroup, eLanguage) %>%
-  summarize(n = n()) %>%
-    ggplot(aes(x = reorder(eLanguage, n), y = n)) +
-  geom_col() +
-  facet_wrap(~eGroup) +
-  labs(x = "Language",
-       y = "Number of queries")
-
-# rows by query
-tDataEx3 %>%
-  group_by(eGroup, eQ) %>%
-  summarize(n = n()) %>%
-  ggplot(aes(x = reorder(eQ, n), y = n)) +
-  geom_col() +
-  facet_wrap(~eGroup) +
-  labs(x = "Query",
-       y = "Number of queries")
-  
 ```
 
 
-# What is the percentage that a box has shown up with/without a helpline under three categories(control, helpful, harmful)?  In data (ex_3) 
+# Authors' original code
 
-```{r}
-tDataEx3 %>%
-  group_by(eGroup, bResultsReached) %>%
-  summarize(Percent_shown = sum(bHelplineShown) / n()) %>%
-  ggplot(aes(x = bResultsReached, y = Percent_shown)) +
-  geom_col() +
-  facet_wrap(~eGroup) +
-  labs(title = "Percent suicide prevention box is shown per search group",
-       x = "Box was shown",
-       y = "Percent of time helpline was shown") +
-  theme_minimal()
+All of the tables and plots associated with the article can be easily reproduced from the researchers’ code and data below. They used concise R code. It is likely that they did exploratory analysis on their data before settling on the plots that they chose since their plots are detailed. They also did not include any plots for study one and they likely did make some plots for themselves during their research process. The two main plots that they chose are comprehensive summaries of their findings for study two and study three.
 
-# which rows don't have the box but do have the helpline
-View(tDataEx3[!(tDataEx3$bResultsReached) & tDataEx3$bHelplineShown,])
-
-# ggsave(filename = "Plots/Rate_per_group.svg",
-#        plot = last_plot(),
-#        device = "svg",
-#        width = 7,
-#        height = 5)
-
-tDataEx3 %>%
-  group_by(eCountry, eGroup, bResultsReached) %>%
-  summarize(Percent_shown = sum(bHelplineShown) / n()) %>%
-  ggplot(aes(x = bResultsReached, y = Percent_shown)) +
-  geom_col() +
-  facet_grid(eCountry~eGroup) +
-  labs(title = "Percent suicide prevention box is shown per search group and country",
-       x = "Box was shown",
-       y = "Percent of time helpline was shown")
-```
-
-### Correlation Plot
-## What are the correlations between the variables in Study 2?
-
-Below is a correlation matrix image for the main variables in study two. There were no reference groups used for this display.
-
-# First, I dummy coded the following variables: whether the SPR box popped up during the query, the language used, the country, and the type of phrase in the search (harmful, helpful, and control). I decided against using reference groups to show the .33 English to SPR box pop up correlation.
-
-You can see there is a high correlation between the countries and their common language. Notice the dark green boxes with correlation 1. There are also some high correlations due to multicollinearity. They are in dark blue from .5 to 1. These are not relevant to this analysis.
-
-There are three correlations that we want to discuss. They are in the row near the bottom titled bHelplineShown_TRUE. That row represents the SPR box pop up variable. 
-
-The green correlation box on the left shows the correlation between English searches, and the SPR box pop up is .33. On the right side of the  bHelplineShown_TRUE row, the correlation between harmful search phrases and the SPR box pop up is also significant. It has a positive value of .42. On the other hand, the control search phrases are negatively correlated to the SPR box pop up, with a value of -.34. These statistics are consistent with the research findings in study two. 
-
-Another observation of the correlation matrix is that the search phrase type does not correlate with any language or country, as they were evenly distributed across by the study design.
-
-```{r}
-library(fastDummies)
-library(GGally)
-study2dummyRef <- dummy_cols(tDataEx3, select_columns = c("bHelplineShown", "eLanguage", "eCountry", "eGroup"))
-ggcorr(study2dummyRef, hjust = 0.75, size = 1.5, label=T, label_round = 2,
-  label_size = 2, high = "forestgreen") + 
-  ggplot2::labs(title = "Study Two Correlation Matrix") +
-  theme(plot.title = element_text(hjust = 0.5))
-```
-
-### Harmful SPR Plot by Country and Language
-## What is the difference between SPR pop-ups when a person makes a harmful Google search in various countries and their primary language?
-
-Below are two bar plots of the harmful Google queries in Study 2. The harmful Google queries are divided by country.
-
-As you can see, harmful Google queries were routed to the SPR box much more often when they were searched for in English, except in Canada. Harmful Google queries in other countries, whose primary languages are not English, were much less likely to be routed to the SPR box. 
-
-```{r}
-library(dplyr)
-library(ggplot2)
-
-study2harmful <- data.frame(tDataEx3[which(tDataEx3$eGroup=="harmful"),])
-agg <- count(study2harmful, eLanguage, eCountry, bHelplineShown)
-ecols <- c(English="darkgoldenrod1", Portuguese="dodgerblue4", Mandarin="midnightblue", Hindi="deepskyblue3", German="lightskyblue1", Japanese="green4",Korean="yellowgreen")
-agg_ord <- mutate(agg,
-                  bHelplineShown = reorder(bHelplineShown, -n, sum))
-p1 <- ggplot(agg_ord) +
-      geom_col(aes(x = eCountry, y = n, fill = eLanguage), position = "dodge") +
-      scale_fill_manual(values = ecols)
-p1 + facet_wrap(~ bHelplineShown) +
-    labs(title = "Number of Harmful Google Queries Routed to Suicide Prevention Box",
-       x = "Country Name & Queary Search Language",
-       y = "Number of Harmful Queries") + 
-       theme(plot.title = element_text(hjust = 0.5))
-```
-
-
-### Forest Plot for the Linear Model Coefficients
-## How do the linear coefficients compare accross a linear model of the data with an interaction around country and phrase type? 
-
-An interactive model that represents the data is: bHelplineShown = eCountry*eGroup. The outcome variable is the SPR box pop up and the independent variables are the country and the type of phrae that was used. 
-
-You can see below a forest plot of the coefficients for this model that listed a t-value greater than 0 and a p-value less than 1. 
-
-There are coefficients ranging from .78 to .8 for countries where English is the primary language and harmful phrases were searched. The other coefficients shown on the plot have values ranging from .08 to .38. 
-
-These trends are consistent with the research findings. The researchers found harmful phrase searches and English speaking countries had higher display rates of the SPR box pop up. They also found all searches in Canada, helpful searches in India, South Korea, Japan, and Brazil had a zero percent display rate of the SPR box pop up. This aligns with the interactions in this linear model showed a t-value of zero. 
-
-```{r}
-#names(study2dummyRef)[names(study2dummyRef) == "eCountry_South Korea"] <- "eCountry_South_Korea"
-#acc.lm <- lm(bHelplineShown ~ eCountry_Germany*eGroup_helpful + eCountry_India*eGroup_harmful + eCountry_Germany*eGroup_harmful + eCountry_Brazil*eGroup_harmful + eCountry_South_Korea*eGroup_harmful + eCountry_Australia*eGroup_helpful + eCountry_Ireland*eGroup_helpful + eCountry_UK*eGroup_helpful + eCountry_Japan*eGroup_harmful + eCountry_USA*eGroup_helpful + eCountry_Ireland*eGroup_harmful + eCountry_USA*eGroup_harmful + eCountry_UK*eGroup_harmful + eCountry_Australia*eGroup_harmful, data = study2dummyRef)
-#summary(acc.lm)
-
-library(sjPlot)
-# This seems like the best model to fit the data. I removed all the variables from the plot that had high p-values
-SPRlm <- lm(bHelplineShown ~ eCountry*eGroup, data = tDataEx3)
-# summary(SPRlm)
-plot_model(SPRlm, sort.est=TRUE, wrap.labels = 75, rm.terms = c("eCountry [Ireland]", "eCountry [UK]", "eGroup [helpful]","eCountry [India]", "eGroup [harmful]", "eCountry [Japan]", "eCountry [Germany]", "eCountry [South Korea]", "eCountry[Australia]", "eCountry [Canada]", "eCountry [Brazil]", "eCountry [USA]", "eCountry [Australia]", "eCountryCanada:eGrouphelpful", "eCountryCanada:eGroupharmful", "eCountryBrazil:eGrouphelpful", "eCountryJapan:eGrouphelpful", "eCountryIndia:eGrouphelpful", "eCountrySouth Korea:eGrouphelpful"), show.values = TRUE, value.offset = .35, value.size=3, title = "Forest Plot of Suicide Prevention Box Shown", axis.title = "lm Regression Coefficients (for all variables with outcomes)", axis.labels = c("Germany * helpful", "India * harmful", "Germany * harmful", "Brazil * harmful", "South Korea * harmful", "Australia * helpful", "Ireland * helpful", "UK * helpful", "Japan * harmful", "USA * helpful", "Ireland * harmful", "USA * harmful", "UK * harmful", "Australia * harmful"), colors = c("forestgreen")) + 
-       theme(plot.title = element_text(hjust = 0.5))
-
-```
-
-SPR display rate segmented per server and country
-```{r}
-library(dplyr)
-library(ggplot2)
-tDataEx3 %>%
-  group_by(eServer, eCountry) %>%
-  summarize(Percent_shown = sum(bHelplineShown) / n()) %>%
-  ggplot(aes(x = eServer, y = Percent_shown)) +
-  geom_col() +
-  facet_wrap(~reorder(eCountry, Percent_shown)) +
-  labs(title = "Percent of Time SPR is Shown, Segmented by Country and Server",
-       x = "Server",
-       y = "Percent of Time SPR is Shown") +
-  theme(plot.title = element_text(hjust = 0.5))
-
-
-```
-
-SPR display rate by time and day of week
-```{r}
-library(radiant.data)
-tDataEx3 %>%
-  # mutate(time = format(as.POSIXct(strptime(dCreate,"%Y-%d-%m %H:%M:%S",tz="")) ,format = "%H:%M")) %>%
-  mutate(Hour = hour(dCreate)) %>%
-  group_by(Hour, eCountry) %>%
-  summarize(Percent_shown = sum(bHelplineShown) / n()) %>%
-  ggplot(aes(x = Hour, y = Percent_shown, group = eCountry)) +
-  geom_line() +
-  geom_point() +
-  scale_y_continuous(limits = c(0, 1)) +
-  labs(title = "Percent of Time SPR is Shown by Hour of the Day",
-       x = "Hour of the Day",
-       y = "Percent of time SPR is Shown")  +
-  theme(plot.title = element_text(hjust = 0.5))
-
-tDataEx3 %>%
-  # mutate(time = format(as.POSIXct(strptime(dCreate,"%Y-%d-%m %H:%M:%S",tz="")) ,format = "%H:%M")) %>%
-  mutate(WeekDay = wday(dCreate)) %>%
-  group_by(WeekDay, eCountry) %>%
-  summarize(Percent_shown = sum(bHelplineShown) / n()) %>%
-  ggplot(aes(x = WeekDay, y = Percent_shown, group = eCountry)) +
-  geom_line() +
-  geom_point() +
-  scale_y_continuous(limits = c(0, 1)) +
-  labs(title = "Percent of Time SPR is Shown by Day of the Week",
-       x = "Day of the Week",
-       y = "Percent of Time SPR is Shown") +
-  theme(plot.title = element_text(hjust = 0.5))
-
-```
-
-
-```{r original script, eval=FALSE, include=FALSE}
+```{r original script, eval=FALSE}
 
 # function to bootstrap-calc 95% CI and return as data frame (ready for dplyr)
 fCalcBootstrapCI <- function(.tData) {
@@ -260,7 +72,7 @@ tDataEx2 %>%
   theme_bw() +
   theme(legend.position = 'bottom') +
   scale_colour_brewer(palette='Paired')
-ggsave('ex2_percentage-over-time_countrywise.png', device='png', width=10)
+# ggsave('ex2_percentage-over-time_countrywise.png', device='png', width=10)
 
 # study 2: comparison across the globe (main language only)
 tDataEx3 %>% nrow
@@ -316,10 +128,8 @@ tDataEx3 %>%
     #scale_fill_brewer(palette='Paired')
     scale_fill_manual(values=c('#1f78b4', '#a6cee3', 'grey80'))
   
-ggsave('ex3_percentage-per-country-and-group.png', device='png', width=10)
+# ggsave('ex3_percentage-per-country-and-group.png', device='png', width=10)
   
-
-
 # study 3: comparison within multi-lingual country (india, china)
 tDataEx4 %>% nrow
 tDataEx4 %>%
@@ -351,15 +161,91 @@ tDataEx4 %>%
     theme_bw() +
     theme(legend.position = 'bottom') +
     scale_colour_brewer(palette='Paired')
-ggsave('ex4_percentage-over-time_languagewise.png', device='png', width=10)
+# ggsave('ex4_percentage-over-time_languagewise.png', device='png', width=10)
 ```
 
 
+# Our additional analyses of the same data
+See the paper for descriptions of the output of this code.
 
-##Contrast model：use English as reference group (extra)
+
+### Correlation Plot
+What are the correlations between the variables in Study 2?
+
+```{r message=FALSE, warning=FALSE}
+study2dummyRef <- dummy_cols(tDataEx3, select_columns = c("bHelplineShown", "eLanguage", "eCountry", "eGroup"))
+ggcorr(study2dummyRef, hjust = 0.75, size = 1.5, label=T, label_round = 2,
+  label_size = 2, high = "forestgreen") + 
+  ggplot2::labs(title = "Study Two Correlation Matrix") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+
+### Forest Plot for the Linear Model Coefficients
+How do the linear coefficients compare accross a linear model of the data with an interaction around country and phrase type? 
+
+```{r message=FALSE, warning=FALSE}
+# This is an effective linear model
+SPRlm <- lm(bHelplineShown ~ eCountry*eGroup, data = tDataEx3)
+
+# plot of linear model coefficients
+plot_model(SPRlm, sort.est=TRUE, wrap.labels = 75, rm.terms = c("eCountry [Ireland]", "eCountry [UK]", "eGroup [helpful]","eCountry [India]", "eGroup [harmful]", "eCountry [Japan]", "eCountry [Germany]", "eCountry [South Korea]", "eCountry[Australia]", "eCountry [Canada]", "eCountry [Brazil]", "eCountry [USA]", "eCountry [Australia]", "eCountryCanada:eGrouphelpful", "eCountryCanada:eGroupharmful", "eCountryBrazil:eGrouphelpful", "eCountryJapan:eGrouphelpful", "eCountryIndia:eGrouphelpful", "eCountrySouth Korea:eGrouphelpful"), show.values = TRUE, value.offset = .35, value.size=3, title = "Forest Plot of Suicide Prevention Box Shown", axis.title = "lm Regression Coefficients (for all variables with outcomes)", axis.labels = c("Germany * helpful", "India * harmful", "Germany * harmful", "Brazil * harmful", "South Korea * harmful", "Australia * helpful", "Ireland * helpful", "UK * helpful", "Japan * harmful", "USA * helpful", "Ireland * harmful", "USA * harmful", "UK * harmful", "Australia * harmful"), colors = c("forestgreen")) + 
+       theme(plot.title = element_text(hjust = 0.5))
+```
+
+### SPR display rate by time and day of week
+
 ```{r}
-#install.packages("lsmeans")
-library(lsmeans)
+# SPR by time and country
+tDataEx3 %>%
+  mutate(Hour = hour(dCreate)) %>%
+  group_by(Hour, eCountry, eGroup) %>%
+  summarize(Percent_shown = sum(bHelplineShown) / n()) %>%
+  ggplot(aes(x = Hour, y = Percent_shown, group = eCountry, color = eCountry)) +
+  geom_line() +
+  geom_point() +
+  facet_wrap(~eGroup) +
+  scale_y_continuous(limits = c(0, 1)) +
+  labs(title = "Share of results displaying the SPR by Hour of the Day",
+       x = "Hour of the day",
+       y = "Share of results displaying the SPR")  +
+  theme(plot.title = element_text(hjust = 0.5))
+
+# ggsave(filename = "Plots/Time.png",
+#        plot = last_plot(),
+#        device = "png",
+#        width = 10,
+#        height = 4)
+
+# SPR by weekday and country
+tDataEx3 %>%
+  mutate(WeekDay = wday(dCreate)) %>%
+  group_by(WeekDay, eCountry, eGroup) %>%
+  summarize(Percent_shown = sum(bHelplineShown) / n()) %>%
+  ggplot(aes(x = as.factor(WeekDay), y = Percent_shown, group = eCountry, color = eCountry)) +
+  geom_line() +
+  geom_point() +
+  facet_wrap(~eGroup) +
+  scale_y_continuous(limits = c(0, 1)) +
+  scale_x_discrete(labels = c("Sun", "", "Tues", "",
+                              "Thurs", "", "Sat")) +
+  labs(title = "Share of results displaying the SPR by Day of the Week",
+       x = "Day of the Week",
+       y = "Share of results displaying the SPR") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+# ggsave(filename = "Plots/WeekDay.png",
+#        plot = last_plot(),
+#        device = "png",
+#        width = 10,
+#        height = 4)
+
+```
+
+
+### Contrast model：use English as reference group (extra)
+
+```{r}
 data <- tDataEx4
 res1 <- lm(bHelplineShown~factor(eLanguage), data=data)
 language.est = lsmeans(res1, "eLanguage")
@@ -370,7 +256,8 @@ test(Test1)
 ```
 
 
-##Contrast model：compare each group to overall mean
+### Contrast model：compare each group to overall mean
+
 ```{r}
 #compare each group to overall mean
 Contrasts.group.averageref = list(English.vs.average = c(3/4, -1/4,-1/4,-1/4), Mandarin.vs.average = c(-1/4, 3/4,-1/4,-1/4), Hindi.vs.average = c(-1/4, -1/4,3/4,-1/4), Telugu.vs.average = c(-1/4, -1/4,-1/4, 3/4))
@@ -378,23 +265,4 @@ Test2 = contrast(language.est, Contrasts.group.averageref)
 test(Test2)
 ```
 
-##Contrast model：use English as reference group (extra)
-```{r}
-#install.packages("lsmeans")
-library(lsmeans)
-data <- tDataEx4
-res1 <- lm(bHelplineShown~factor(eLanguage), data=data)
-language.est = lsmeans(res1, "eLanguage")
-#use English as reference group
-Contrasts.English.ref = list(Mandarin.vs.English = c(1, -1, 0, 0), Hindi.vs.English = c(1, 0, -1,0), Telugu.vs.English = c(1, 0, 0, -1))
-Test1 = contrast(language.est, Contrasts.English.ref)
-test(Test1)
-```
 
-
-##Contrast model：compare each group to overall mean
-```{r}
-#compare each group to overall mean
-Contrasts.group.averageref = list(English.vs.average = c(3/4, -1/4,-1/4,-1/4), Mandarin.vs.average = c(-1/4, 3/4,-1/4,-1/4), Hindi.vs.average = c(-1/4, -1/4,3/4,-1/4), Telugu.vs.average = c(-1/4, -1/4,-1/4, 3/4))
-Test2 = contrast(language.est, Contrasts.group.averageref)
-test(Test2)

@@ -1,9 +1,10 @@
 ---
 title: "Additional analyses"
-author: "Joe Marlo"
+author: "Group A"
 date: "11/30/2019"
 output:
-  pdf_document: default
+  pdf_document:
+    latex_engine: xelatex
   html_document:
     df_print: paged
 editor_options:
@@ -14,6 +15,7 @@ editor_options:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+# Load the relevant libraries and datasets
 ```{r message=FALSE, warning=FALSE}
 library(tidyverse)
 library(lubridate)
